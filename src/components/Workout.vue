@@ -30,6 +30,8 @@
             <li v-for="allMuscles in dbAllMuscles[muscle]">
               <div @mouseenter="wmHovered(1, muscle)"
                 @mouseleave="wmHovered(0, muscle)">
+                <input type="checkbox" :value="`${muscle} - ${allMuscles}`"
+                v-model="subMuscles">
                 <span>{{ allMuscles }}</span>
               </div>
             </li>
@@ -37,13 +39,27 @@
                   
         </li>
       </ul>  
-    </div>   
+    </div> 
+    <div class="wv mk-view">
+      <div>{{ today }}</div>
+      <ul>
+        <li v-for="subMuscle in subMuscles">
+          <span class="muscle">{{ subMuscle }}</span>
+          <input name="muscleSet" type="text"> <span class="unit">kg/lbs</span>
+          <input name="muscleSet" type="number" value="10">
+          <input name="muscleSet" type="number" value="10">
+          <input name="muscleSet" type="number" value="10">
+        </li>
+      </ul>
+      <button v-if="subMuscles.length" @click="wmAddTraining">確定</button>
+    </div>  
   </div>
 </template>
 
 <script>
 import { db, db_muscle, db_muscles } from '@/db.js';
 import draggable from 'vuedraggable'
+var moment = require('moment');
 export default {
   components: {
     draggable,
@@ -55,7 +71,11 @@ export default {
       ipMuscle: '',
       ipSubMuscle: '',
       dbMuscles: '',
-      dbAllMuscles: {}
+      dbAllMuscles: {},
+      subMuscles: [],
+      mainMuscles: [],
+      allMuscles: {},
+      today: ''
     }
   },
   methods: {
@@ -80,10 +100,11 @@ export default {
       db.ref(`/muscles/${wh_slecMuscle}`).set(
         this.dbAllMuscles[wh_slecMuscle]
       );
-      console.log(this.dbAllMuscles);
       this.ipSubMuscle = '';
     },
-    wmDel(index, pos) {      
+    wmDel(index, pos) {
+      var check = confirm('Are you sure to delete ?');
+      if(!check) return;
       if(pos) {
         this.dbAllMuscles[pos].splice(index, 1);      
         db.ref(`/muscles/${pos}`).set(this.dbAllMuscles[pos]);
@@ -115,6 +136,20 @@ export default {
         //this.wmDel( this.dbMuscles.indexOf(v) );    
       });
     },
+    wmPairMuscle(muscle) {
+      this.mainMuscles.push(muscle);
+    },
+    wmAddTraining() {
+      var muscleSet = [...document.getElementsByName('muscleSet')];
+      var muscleSetArray = muscleSet.map(x => x.value);
+      var obj = {};
+
+      for (let i = 0; i < this.subMuscles.length; i++) {
+        obj[this.subMuscles[i]] = muscleSetArray.slice(i * 4, 4 * (i + 1)).join('-');        
+      }
+
+      db.ref(`/training/${this.today}`).set(obj);
+    },
     getSiblings(elem) {
       var siblings = [];
       var sibling = elem.parentNode.firstChild;
@@ -142,7 +177,17 @@ export default {
     wh_ipSubMuscle.addEventListener('keyup', (e) => {
       if (e.keyCode === 13) this.whAddSubMuscle();
     });    
-  }
+  },
+  beforeUpdated() {
+    
+  },
+  updated() {
+    if(this.subMuscles.length)
+      this.today = moment().format().slice(0, 10);
+
+      console.log(this.subMuscles);      
+      //console.log(this.mainMuscles);
+    }
 }
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
