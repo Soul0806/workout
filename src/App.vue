@@ -2,10 +2,10 @@
   <div id="app">
       <div class="navbar">
         <span>
-        <router-link to="/">Insert</router-link>
+         <router-link to="/">新增</router-link>
         </span>
         <span>
-        <router-link to="/train">Course</router-link>
+         <router-link to="/train">課表</router-link>
         </span>
     </div>
     <router-view></router-view>

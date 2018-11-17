@@ -25,7 +25,6 @@
           @mouseleave="wmHovered(0)">
             <span>{{ muscle }}</span>
           </div>
-        
           <ul>
             <li v-for="allMuscles in dbAllMuscles[muscle]">
               <div @mouseenter="wmHovered(1, muscle)"
@@ -36,7 +35,6 @@
               </div>
             </li>
           </ul>
-                  
         </li>
       </ul>  
     </div> 
@@ -184,10 +182,7 @@ export default {
   updated() {
     if(this.subMuscles.length)
       this.today = moment().format().slice(0, 10);
-
-      console.log(this.subMuscles);      
-      //console.log(this.mainMuscles);
-    }
+  }
 }
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
@@ -195,3 +190,4 @@ export default {
 @import url(//fonts.googleapis.com/earlyaccess/notosanstc.css);
 @import '@/assets/css/workout.scss';
 </style>
+

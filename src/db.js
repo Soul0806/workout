@@ -13,9 +13,11 @@ firebase.initializeApp(config);
 const db = firebase.database();
 const db_muscle = db.ref('/muscle');
 const db_muscles = db.ref('/muscles');
+const db_trainings = db.ref('/training');
 
 export {
   db,
   db_muscle,
-  db_muscles
+  db_muscles,
+  db_trainings
 }
