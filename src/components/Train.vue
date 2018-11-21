@@ -8,7 +8,8 @@
             <li v-for="(value, subKey) in dbTraining">
               <div>
                 <span> {{ subKey }} </span>
-                <span>{{ value.replace('-', ' ') }}</span>
+                <span>{{ value.weight }}</span>
+                <span>{{ value.times }}</span>
               </div>
             </li>
           </ul>

@@ -1,24 +1,24 @@
 <template>
   <div class="wk workout">
-    <div class="wh wk-head">
+    <div class="header">
       <h1>健身菜單</h1>
-      <div>
+      <div class="main">
         <label for="muscle">肌群</label>
-        <input type="text" class="js-wh-ipMuscle-c" id="js-wh-ipMuscle" 
-            name="muscle" v-model="ipMuscle">
+        <input type="text" name="muscle"
+            @keyup.enter="whAddMuscle" v-model="ipMuscle">
         <button @click="whAddMuscle">新增</button>
       </div>
-      <div class="wh-sub">
-        <select id="js-wh-slecMuscle">
+      <div class="sub">
+        <select v-model="seleSubMuscle">
           <option v-for="muscle in dbMuscles" :value="muscle">
             {{ muscle }}
           </option>
         </select>
-        <input type="text" id="js-wh-ipSubMuscle" v-model="ipSubMuscle">
+        <input type="text" @keyup.enter="whAddSubMuscle" v-model="ipSubMuscle">
         <button @click="whAddSubMuscle">新增</button>
       </div>
     </div>    
-    <div class="wm wk-main">  
+    <div class="main">  
       <ul>
         <li v-for="muscle in dbMuscles">
           <div @mouseenter="wmHovered(1)"
@@ -27,8 +27,9 @@
           </div>
           <ul>
             <li v-for="allMuscles in dbAllMuscles[muscle]">
-              <div @mouseenter="wmHovered(1, muscle)"
-                @mouseleave="wmHovered(0, muscle)">
+              <div class="sub"
+                @mouseenter="wmHovered(0, muscle)"
+                @mouseleave="wmHovered(1, muscle)">
                 <input type="checkbox" :value="`${muscle} - ${allMuscles}`"
                 v-model="subMuscles">
                 <span>{{ allMuscles }}</span>
@@ -38,12 +39,15 @@
         </li>
       </ul>  
     </div> 
-    <div class="wv mk-view">
-      <div>{{ today }}</div>
+    <div class="view">
+      <div>日期：<input type="text" v-model="date"></div>
       <ul>
-        <li v-for="subMuscle in subMuscles">
+        <li v-for="subMuscle,key in subMuscles">
           <span class="muscle">{{ subMuscle }}</span>
-          <input name="muscleSet" type="text"> <span class="unit">kg/lbs</span>
+          <input name="muscleSet" type="text">
+          <input type="radio" :name="`unit-${key}`" value="kg" checked>kg
+          <input type="radio" :name="`unit-${key}`" value="lbs">lbs
+          <!--  <span class="unit">kg/lbs</span> -->
           <input name="muscleSet" type="number" value="10">
           <input name="muscleSet" type="number" value="10">
           <input name="muscleSet" type="number" value="10">
@@ -65,6 +69,7 @@ export default {
   name: 'Workout',
   data () {
     return {
+      seleSubMuscle: '胸',
       currentHover: '',
       ipMuscle: '',
       ipSubMuscle: '',
@@ -73,7 +78,7 @@ export default {
       subMuscles: [],
       mainMuscles: [],
       allMuscles: {},
-      today: ''
+      date: ''
     }
   },
   methods: {
@@ -86,17 +91,15 @@ export default {
       this.ipMuscle = '';
     },
     whAddSubMuscle() {
-      var wh_slecMuscle = document.getElementById('js-wh-slecMuscle').value;
       if(!this.ipSubMuscle) return console.log('no value');
+      var seleSubMuscle = this.seleSubMuscle;
       
-      if(!this.dbAllMuscles[wh_slecMuscle]) {
-        this.dbAllMuscles[wh_slecMuscle] = [this.ipSubMuscle];        
-      } else {
-        this.dbAllMuscles[wh_slecMuscle].push(this.ipSubMuscle);
-      }
+      this.dbAllMuscles[seleSubMuscle] 
+        ? this.dbAllMuscles[seleSubMuscle].push(this.ipSubMuscle) 
+        : this.dbAllMuscles[seleSubMuscle] = [this.ipSubMuscle]   
       
-      db.ref(`/muscles/${wh_slecMuscle}`).set(
-        this.dbAllMuscles[wh_slecMuscle]
+      db.ref(`/muscles/${seleSubMuscle}`).set(
+        this.dbAllMuscles[seleSubMuscle]
       );
       this.ipSubMuscle = '';
     },
@@ -108,31 +111,29 @@ export default {
         db.ref(`/muscles/${pos}`).set(this.dbAllMuscles[pos]);
         return; 
       }
-      this.dbMuscles.splice(index, 1);
+      //this.dbMuscles.splice(index, 1);
       //db.ref('/muscle').set(this.dbMuscles);
     },    
     wmHovered(bool, pos) {
       if(!pos) return;
-      var el = document.getElementById('js-wm-del');
-      if(el) {
+      if(bool) {
+        var el = document.getElementById('js-wm-del');
         el.remove();
-        if(!bool) return; 
+        return;        
       }
+
       var element = event.target;
       var span = document.createElement('span');      
       span.id = "js-wm-del";
       span.innerHTML = 'X';       
-      element.appendChild(span);
-      
-      var del = document.getElementById('js-wm-del');
-      del.addEventListener('click', (e) => {
+      span.addEventListener('click', (e) => {
         var v = e.target.previousSibling.innerHTML;     
         if(pos) {
           this.wmDel(this.dbAllMuscles[pos].indexOf(v), pos);
         }        
-        console.log('wmHovered closed');       
         //this.wmDel( this.dbMuscles.indexOf(v) );    
       });
+      element.appendChild(span);
     },
     wmPairMuscle(muscle) {
       this.mainMuscles.push(muscle);
@@ -141,12 +142,18 @@ export default {
       var muscleSet = [...document.getElementsByName('muscleSet')];
       var muscleSetArray = muscleSet.map(x => x.value);
       var obj = {};
-
       for (let i = 0; i < this.subMuscles.length; i++) {
-        obj[this.subMuscles[i]] = muscleSetArray.slice(i * 4, 4 * (i + 1)).join('-');        
+        let els = document.getElementsByName(`unit-${i}`);
+        let unit = (els[0].checked ? els[0].value : els[1].value);
+        var muscleSetSlice = muscleSetArray.slice(i * 4, 4 * (i + 1));
+        var muscleSetOne = muscleSetSlice.shift();
+        obj[this.subMuscles[i]] = {
+          weight: `${muscleSetOne}${unit}`,
+          times: muscleSetSlice.join('-')
+        }      
       }
-
-      db.ref(`/training/${this.today}`).set(obj);
+      
+      db.ref(`/training/${this.date}`).set(obj);
     },
     getSiblings(elem) {
       var siblings = [];
@@ -166,22 +173,21 @@ export default {
       if( e.val() ) this.dbAllMuscles = e.val()     
       //this.dbAllMuscles = (!e.val() ? {} : e.val());
     })
-    var wh_ipMuscle = document.getElementById('js-wh-ipMuscle');
+    /* var wh_ipMuscle = document.getElementById('js-wh-ipMuscle');
     wh_ipMuscle.addEventListener('keyup', (e) => {
       e.preventDefault();
       if (e.keyCode === 13) this.whAddMuscle();
-    }); 
-    var wh_ipSubMuscle = document.getElementById('js-wh-ipSubMuscle');
+    });  */
+    /* var wh_ipSubMuscle = document.getElementById('js-wh-ipSubMuscle');
     wh_ipSubMuscle.addEventListener('keyup', (e) => {
       if (e.keyCode === 13) this.whAddSubMuscle();
-    });    
+    });  */   
   },
   beforeUpdated() {
-    
   },
   updated() {
-    if(this.subMuscles.length)
-      this.today = moment().format().slice(0, 10);
+    //if(this.subMuscles.length)
+      //this.today = moment().format().slice(0, 10);
   }
 }
 </script>

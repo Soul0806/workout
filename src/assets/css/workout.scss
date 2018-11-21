@@ -1,13 +1,12 @@
 body {
   //font-size: 1rem;
-  font-family: 'Noto Sans TC', sans-serif;  
+  font-family: "Noto Sans TC", sans-serif;
 }
 
 .wk {
   margin: 10px;
-  
 }
-.wh {
+.header {
   div {
     display: inline-block;
   }
@@ -15,19 +14,18 @@ body {
     height: 19px;
     width: 100px;
   }
-  .wh-sub {
+  .sub {
     select {
       height: 25px;
       width: 60px;
       margin-left: 20px;
-     }
-     input {
+    }
+    input {
       padding: 0px 2px 1px;
-     }
+    }
   }
-
 }
-.wm { 
+.main {
   display: inline-block;
   > ul {
     padding: 0px;
@@ -41,9 +39,11 @@ body {
         //width: 100px;
         padding: 5px;
       }
-    }      
+    }
   }
-
+  .sub {
+    width: 150px;
+  }
   li {
     list-style: none;
     span {
@@ -54,7 +54,7 @@ body {
     }
   }
 }
-.wv {
+.view {
   position: absolute;
   display: inline-block;
   margin: 20px 20px;
@@ -65,9 +65,9 @@ body {
   .unit {
     font-size: 0.5rem;
   }
-  input {
-    text-align:  right;
-    width:  50px;
+  input:not([type="radio"]) {
+    text-align: right;
+    width: 50px;
   }
   button {
     position: absolute;
