@@ -40,17 +40,18 @@
       </ul>  
     </div> 
     <div class="view">
-      <div>日期：<input type="text" v-model="date"></div>
+      <div>日期：<input class="date" type="text" v-model="date"></div>
       <ul>
         <li v-for="subMuscle,key in subMuscles">
-          <span class="muscle">{{ subMuscle }}</span>
-          <input name="muscleSet" type="text">
-          <input type="radio" :name="`unit-${key}`" value="kg" checked>kg
-          <input type="radio" :name="`unit-${key}`" value="lbs">lbs
-          <!--  <span class="unit">kg/lbs</span> -->
-          <input name="muscleSet" type="number" value="10">
-          <input name="muscleSet" type="number" value="10">
-          <input name="muscleSet" type="number" value="10">
+          <div>
+            <span class="muscle">{{ subMuscle }}</span>
+            <input name="muscleSet" type="text">
+            <input type="radio" :name="`unit-${key}`" value="kg" checked>kg
+            <input type="radio" :name="`unit-${key}`" value="lbs">lbs
+            <input name="muscleSet" type="number" value="10">
+            <input name="muscleSet" type="number" value="10">
+            <input name="muscleSet" type="number" value="10">
+          </div>
         </li>
       </ul>
       <button v-if="subMuscles.length" @click="wmAddTraining">確定</button>
@@ -186,8 +187,7 @@ export default {
   beforeUpdated() {
   },
   updated() {
-    //if(this.subMuscles.length)
-      //this.today = moment().format().slice(0, 10);
+    this.date = moment().format().slice(0, 10);
   }
 }
 </script>
@@ -196,4 +196,6 @@ export default {
 @import url(//fonts.googleapis.com/earlyaccess/notosanstc.css);
 @import '@/assets/css/workout.scss';
 </style>
+
+
 
